@@ -1,0 +1,36 @@
+# Core ML and Deep Learning
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+peft>=0.6.0
+bitsandbytes>=0.41.0
+trl>=0.7.0
+
+# Datasets and Data Processing
+datasets>=2.14.0
+pandas>=2.0.0
+numpy>=1.24.0
+faker>=19.0.0
+
+# RAG and Vector Search
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+langchain>=0.0.300
+
+# API and Web Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+
+# Database
+psycopg2-binary>=2.9.9
+
+# Configuration
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+
+# Utilities
+requests>=2.31.0
+tqdm>=4.66.0
+
