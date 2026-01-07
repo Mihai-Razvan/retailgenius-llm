@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database for product catalog
+  postgres:
+    image: postgres:15-alpine
+    container_name: retailgenius-db
+    environment:
+      POSTGRES_DB: retailgenius
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - retailgenius-network
+
+  # RetailGenius LLM API
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: retailgenius-api
+    environment:
+      # Database connection
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: retailgenius
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      # Model configuration
+      BASE_MODEL: "mistralai/Mistral-7B-Instruct-v0.2"
+      ADAPTER_PATH: "./training/adapters"
+      # RAG configuration
+      FAISS_INDEX_PATH: "./faiss_index/index.faiss"
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount model adapters (if available)
+      - ../training/adapters:/app/training/adapters:ro
+      # Mount FAISS index
+      - ../faiss_index:/app/faiss_index
+      # Mount data directory
+      - ../data:/app/data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - retailgenius-network
+    # Note: For GPU support, uncomment the following:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  retailgenius-network:
+    driver: bridge
+
